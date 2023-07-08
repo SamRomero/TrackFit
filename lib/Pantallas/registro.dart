@@ -18,7 +18,8 @@ class _RegistroState extends State<Registro> {
   final _nombreController = TextEditingController();
   String? _ubicacionValue;
   String? _tipoDeporteValue;
-  String? _distanciaValue;
+  String? _tipoActividadValue;
+  String? _categoriaValue;
 
   @override
   void dispose() {
@@ -55,7 +56,8 @@ class _RegistroState extends State<Registro> {
     return _nombreController.text.isEmpty ||
         _ubicacionValue == null ||
         _tipoDeporteValue == null ||
-        _distanciaValue == null;
+        _tipoActividadValue == null ||
+        _categoriaValue == null;
   }
 
   void _iniciarTemporizador() {
@@ -88,21 +90,17 @@ class _RegistroState extends State<Registro> {
       _isTimerRunning = false;
     });
 
-    Navigator.popUntil(context, ModalRoute.withName('/'));
-
-    Future.delayed(Duration.zero, () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return MyHomePage(
-          title: 'TrackFit',
-          onTabSelected: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          initialIndex: 4,
-        );
-      }));
-    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            MyHomePage(
+              title: 'TrackFit',
+              initialIndex: 4,
+              onTabSelected: (index) {},
+            ),
+      ),
+    );
   }
 
 
@@ -181,9 +179,9 @@ class _RegistroState extends State<Registro> {
               SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  labelText: 'Distancia',
+                  labelText: 'Tipo de Actividad',
                 ),
-                value: _distanciaValue,
+                value: _tipoActividadValue,
                 items: ['Opción 1', 'Opción 2', 'Opción 3']
                     .map((String value) => DropdownMenuItem<String>(
                   value: value,
@@ -192,12 +190,36 @@ class _RegistroState extends State<Registro> {
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _distanciaValue = value;
+                    _tipoActividadValue = value;
                   });
                 },
                 validator: (value) {
                   if (value == null) {
-                    return 'Seleccione una distancia';
+                    return 'Seleccione un tipo de actividad';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Categoría',
+                ),
+                value: _categoriaValue,
+                items: ['Opción 1', 'Opción 2', 'Opción 3']
+                    .map((String value) => DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _categoriaValue = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Seleccione una categoría';
                   }
                   return null;
                 },

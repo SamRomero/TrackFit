@@ -5,6 +5,7 @@ import 'package:trackfit/Pantallas/estadisticas.dart';
 import 'package:trackfit/Pantallas/mapa.dart';
 import 'package:trackfit/Pantallas/registros.dart';
 import 'package:trackfit/Pantallas/user_screen.dart';
+import 'package:trackfit/Pantallas/login_screen.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -12,12 +13,12 @@ class MyHomePage extends StatefulWidget {
     Key? key,
     required this.title,
     required this.onTabSelected,
-    this.initialIndex = 2,
+    this.initialIndex,
   }) : super(key: key);
 
   final String title;
   final ValueChanged<int> onTabSelected;
-  final int initialIndex;
+  final int? initialIndex;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -35,7 +36,13 @@ class _MyHomePageState extends State<MyHomePage> {
     const Registros(),
   ];
 
-
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialIndex != null) {
+      _currentIndex = widget.initialIndex!;
+    }
+  }
   void _onTabSelected(int index) {
     setState(() {
       _currentIndex = index;
@@ -52,7 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onLogoutButtonPressed() {
-    // Lógica para manejar el botón de salida en la AppBar
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+          (route) => false,
+    );
   }
 
   @override
