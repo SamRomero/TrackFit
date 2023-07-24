@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     checkLoginStatus();
   }
+
   Future<void> checkLoginStatus() async {
     final localStorage = LocalStorage();
     await localStorage.init();
@@ -42,7 +43,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
   Future<void> login() async {
+    // Validar si los campos de usuario y contraseña están vacíos
+    if (username.isEmpty || password.isEmpty) {
+      showEmptyFieldsError();
+      return;
+    }
+
     final url = Uri.parse('http://192.168.0.99:8000/api/login');
     final body = jsonEncode({
       'email': username,
@@ -72,117 +80,150 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                MyHomePage(
-                  title: 'TrackFit',
-                  initialIndex: 2,
-                  onTabSelected: (index) {},
-                ),
+            builder: (context) => MyHomePage(
+              title: 'TrackFit',
+              initialIndex: 2,
+              onTabSelected: (index) {},
+            ),
           ),
         );
-
       } else {
-        // La API respondió con un error, muestra un diálogo de error
-
+        // La API respondió con un error, muestra un cuadro de diálogo de error
+        showInvalidCredentialsError();
       }
     } catch (error) {
       setState(() {
         isLoading = false; // Ocultar pantalla de carga
       });
-      // Error al hacer la solicitud a la API, muestra un diálogo de error
-
+      // Error al hacer la solicitud a la API, muestra un cuadro de diálogo de error
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error de conexión'),
+          content: Text('Hubo un error al intentar conectarse al servidor.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
     }
+  }
+
+  // Función para mostrar el cuadro de diálogo cuando los campos están vacíos
+  void showEmptyFieldsError() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error de inicio de sesión'),
+        content: Text('Por favor, ingrese un usuario y contraseña.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+// Función para mostrar el cuadro de diálogo cuando los datos no son correctos
+  void showInvalidCredentialsError() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error de inicio de sesión'),
+        content: Text('Credenciales inválidas. Por favor, verifique sus datos.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: 30),
-                  Container(
-                    height: 200,
-                    width: 200,
-                    child: Image.asset('assets/images/login_image.png'), //cambia esto por tu icono de usuario y borra este comentario
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(top: 30),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.teal.shade200, Colors.teal.shade400],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 40),
+              Image.asset(
+                'assets/images/login_image.png',
+                height: 250,
+                width: 250,
+              ),
+              SizedBox(height: 40),
+              Expanded( // Agregado Expanded
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 40),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        //este textfield modificalo para que quede como los tuyos solo asegurate de dejar el onchanged y personaliza el resto a como los tengas
                         TextField(
                           onChanged: (value) {
                             setState(() {
                               username = value;
                             });
                           },
+                          style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Email',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
+                            hintStyle: TextStyle(color: Colors.white70),
+                            prefixIcon: Icon(
+                                Icons.email, color: Colors.white70),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: Colors.white.withOpacity(0.2),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
                           ),
                         ),
                         SizedBox(height: 20),
-                        //igual este textfield modificalo para que tenga el estilo de tu app
                         TextField(
                           onChanged: (value) {
                             setState(() {
                               password = value;
                             });
                           },
+                          style: TextStyle(color: Colors.white),
                           obscureText: true,
                           decoration: InputDecoration(
                             hintText: 'Contraseña',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
+                            hintStyle: TextStyle(color: Colors.white70),
+                            prefixIcon: Icon(Icons.lock, color: Colors.white70),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: Colors.white.withOpacity(0.2),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
                           ),
                         ),
                         SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RegisterScreen(),
-                              ),
-                            );
-                          },
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'No tienes cuenta ?               ',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.black38,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: '        Registrate',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.teal, //cambia el color por tu color de acento
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10), // Agregamos espacio adicional entre los botones
                         ElevatedButton(
                           onPressed: login,
                           child: Text(
@@ -192,34 +233,43 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
-                          //podes modificar esto para cambiar el estilo del boton
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.teal, // Cambia el color del botón
+                            onPrimary: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 60.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.teal,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Regístrate',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-          Visibility(
-            visible: isLoading, // Mostrar pantalla de carga solo si isLoading es true
-            child: Container(
-              color: Colors.black87,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

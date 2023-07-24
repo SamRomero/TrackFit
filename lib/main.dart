@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:trackfit/localstorage.dart';
 import 'package:trackfit/Pantallas/login_screen.dart';
 import 'package:trackfit/Pantallas/my_home_page.dart';
 import 'package:trackfit/Pantallas/registros.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar LocalStorage
+  LocalStorage localStorage = LocalStorage();
+  await localStorage.init();
   runApp(const MyApp());
 }
 

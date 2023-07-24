@@ -30,4 +30,14 @@ class LocalStorage {
     final jsonString = jsonEncode(value);
     _preferences.setString('userData', jsonString);
   }
+
+  String get userId {
+    final userData = _preferences.getString('userData');
+    if (userData != null) {
+      final userMap = jsonDecode(userData) as Map<String, dynamic>;
+      final user = userMap['user'] as Map<String, dynamic>;
+      return user['id'].toString();
+    }
+    return '';
+  }
 }

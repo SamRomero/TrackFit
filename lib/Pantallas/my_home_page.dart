@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trackfit/LocalStorage.dart';
 import 'package:trackfit/Pantallas/deportes.dart';
 import 'package:trackfit/Pantallas/eventos.dart';
 import 'package:trackfit/Pantallas/estadisticas.dart';
@@ -27,6 +28,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 2;
   int _userScreenIndex = 4;
+  final LocalStorage _localStorage = LocalStorage();
 
   final List<Widget> _screens = [
     const Estadisticas(),
@@ -38,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    _localStorage.init();
     super.initState();
     if (widget.initialIndex != null) {
       _currentIndex = widget.initialIndex!;
@@ -59,6 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onLogoutButtonPressed() {
+    _localStorage.authToken = '';
+    _localStorage.userData = {};
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
